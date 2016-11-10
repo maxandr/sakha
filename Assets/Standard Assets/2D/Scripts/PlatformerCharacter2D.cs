@@ -6,7 +6,8 @@ namespace UnityStandardAssets._2D
     public class PlatformerCharacter2D : MonoBehaviour
     {
         [SerializeField] private float m_MaxSpeed = 10f;                    // The fastest the player can travel in the x axis.
-        [SerializeField] private float m_JumpForce = 400f;                  // Amount of force added when the player jumps.
+        [SerializeField] private float m_JumpForce_min = 10f;                  // Amount of force added when the player jumps.
+        [SerializeField] private float mJump_Max_timer = 0.5f;                  // Amount of force added when the player jumps.
         [Range(0, 1)] [SerializeField] private float m_CrouchSpeed = .36f;  // Amount of maxSpeed applied to crouching movement. 1 = 100%
         [SerializeField] private bool m_AirControl = false;                 // Whether or not a player can steer while jumping;
         [SerializeField] private LayerMask m_WhatIsGround;                  // A mask determining what is ground to the character
@@ -18,6 +19,7 @@ namespace UnityStandardAssets._2D
         const float k_CeilingRadius = .01f; // Radius of the overlap circle to determine if the player can stand up
         private Animator m_Anim;            // Reference to the player's animator component.
         private Rigidbody2D m_Rigidbody2D;
+        private float jump_timer;
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
         private void Awake()
         {
@@ -26,6 +28,7 @@ namespace UnityStandardAssets._2D
             m_CeilingCheck = transform.Find("CeilingCheck");
             m_Anim = GetComponent<Animator>();
             m_Rigidbody2D = GetComponent<Rigidbody2D>();
+            jump_timer = 0.0f;
         }
 
 
@@ -39,7 +42,10 @@ namespace UnityStandardAssets._2D
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].gameObject != gameObject)
+                {
                     m_Grounded = true;
+                    jump_timer = 0.0f;
+                }
             }
             m_Anim.SetBool("Ground", m_Grounded);
 
@@ -89,12 +95,18 @@ namespace UnityStandardAssets._2D
                 }
             }
             // If the player should jump...
-            if (m_Grounded && jump && m_Anim.GetBool("Ground"))
+            if (/*m_Grounded &&*/ jump/* && m_Anim.GetBool("Ground")*/)
             {
                 // Add a vertical force to the player.
-                m_Grounded = false;
+                jump_timer += Time.deltaTime;
+                if (jump_timer <= mJump_Max_timer) {
+                    m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x, m_JumpForce_min);
+                }
+               // m_Grounded = false;
                 m_Anim.SetBool("Ground", false);
-                m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
+                Debug.Log(jump_timer);
+
+                // m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
             }
         }
 

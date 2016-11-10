@@ -12,7 +12,6 @@ namespace UnityStandardAssets._2D
         private bool m_Jump;
         [HideInInspector] public BoxCollider2D coll;
         [HideInInspector] public float axis;
-
         private void Awake()
         {
             m_Character = GetComponent<PlatformerCharacter2D>();
@@ -26,6 +25,10 @@ namespace UnityStandardAssets._2D
                 // Read the jump input in Update so button presses aren't missed.
                 m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
             }
+            if (CrossPlatformInputManager.GetButtonUp("Jump")) {
+                m_Jump = false;
+            }
+
         }
 
 
@@ -36,7 +39,7 @@ namespace UnityStandardAssets._2D
             axis = CrossPlatformInputManager.GetAxis("Horizontal");
             // Pass all parameters to the character control script.
             m_Character.Move(axis, crouch, m_Jump);
-            m_Jump = false;
+           // m_Jump = false;
         }
     }
 }
