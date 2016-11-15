@@ -25,6 +25,13 @@ namespace UnityStandardAssets._2D
         private Rigidbody2D m_Rigidbody2D;
         private float jump_timer;
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
+
+
+        public GameObject PunchCollider;
+        [SerializeField]
+        private float punch_timer;
+        private float punch_timer_curr;
+        private bool punching = false;
         private void Awake()
         {
             // Setting up references.
@@ -34,6 +41,7 @@ namespace UnityStandardAssets._2D
             m_Rigidbody2D = GetComponent<Rigidbody2D>();
             jump_timer = 0.0f;
 			nextFire = Time.time;
+            punch_timer_curr = 0.0f;
         }
 
 
@@ -118,11 +126,24 @@ namespace UnityStandardAssets._2D
                // var angle = Mathf.Atan2(dir.y, tX * dir.x) * Mathf.Rad2Deg;
                 Fire(Quaternion.Euler(new Vector3(0, 0, 0)), move);
             }
+            if (Input.GetButton("Fire2") && nextFire <= Time.time)
+            {
+                nextFire = Time.time + fireRate;
+                // var angle = Mathf.Atan2(dir.y, tX * dir.x) * Mathf.Rad2Deg;
+                Punch(Quaternion.Euler(new Vector3(0, 0, 0)), move);
+            }
+            if (punching) {
+                punch_timer_curr += Time.deltaTime;
+                if (punch_timer_curr >= punch_timer) {
+                    punching = false;
+                    punch_timer_curr = 0.0f;
+                    PunchCollider.GetComponent<PolygonCollider2D>().enabled = false;
+                }
+            }
+
         }
         public void Fire(Quaternion pAngle, float move)
         {
-          //  Vector2 mousePos = new Vector2(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y);
-           // RaycastHit2D hit = Physics2D.Raycast(new Vector2(bullet_instantiate.transform.position.x, bullet_instantiate.transform.position.y), mousePos - new Vector2(bullet_instantiate.transform.position.x, bullet_instantiate.transform.position.y), 100);
             if (m_FacingRight)
             {
                 GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, pAngle/* bullet_instantiate.transform.rotation*/) as GameObject;
@@ -133,17 +154,16 @@ namespace UnityStandardAssets._2D
                 clone.transform.Rotate(new Vector3(0  , 180, 0));
                 clone.GetComponent<Rigidbody2D>().velocity = new Vector2(bulletSpeed*(-1), 0);
             }
-
-            // Vector2 a = new Vector2((mousePos.x - gunpoint.transform.position.x), (mousePos.y - gunpoint.transform.position.y));
-            // a.Normalize();
-            //clone.GetComponent<Rigidbody2D>().velocity = a * bulletSpeed;
-            // if (upper_part.GetComponent<WeaponSwapper>().Current != WeaponSwapper.gunTypes.PLAZMAGUN)
+        }
+        public void Punch(Quaternion pAngle, float move)
+        {
+            if (!punching)
             {
-           //     GameObject sleeve1 = Instantiate(sleeve_prefab, sleeve_spot.transform.position, pAngle/* bullet_instantiate.transform.rotation*/) as GameObject;
-           //     sleeve1.GetComponent<Sleeve_script>().Create(m_FacingRight);
+                punch_timer_curr = 0.0f;
+                PunchCollider.GetComponent<PolygonCollider2D>().enabled = true;
+                punching = true;
             }
         }
-
         private void Flip()
         {
             // Switch the way the player is labelled as facing.
