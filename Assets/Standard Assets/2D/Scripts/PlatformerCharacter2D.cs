@@ -18,6 +18,7 @@ namespace UnityStandardAssets._2D
         private float nextFire = 0.0F;
         private Transform m_GroundCheck;    // A position marking where to check if the player is grounded.
         const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
+        [HideInInspector]
         private bool m_Grounded;            // Whether or not the player is grounded.
         private Transform m_CeilingCheck;   // A position marking where to check for ceilings
         const float k_CeilingRadius = .01f; // Radius of the overlap circle to determine if the player can stand up
@@ -26,12 +27,16 @@ namespace UnityStandardAssets._2D
         private float jump_timer;
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 
-
+        //Punching
         public GameObject PunchCollider;
         [SerializeField]
         private float punch_timer;
         private float punch_timer_curr;
         private bool punching = false;
+        //
+        [HideInInspector]
+        public bool stopJumping = false;
+   
         private void Awake()
         {
             // Setting up references.
@@ -57,7 +62,13 @@ namespace UnityStandardAssets._2D
                 if (colliders[i].gameObject != gameObject)
                 {
                     m_Grounded = true;
-                    jump_timer = 0.0f;
+                    if (stopJumping)
+                    {
+                        jump_timer = 0.0f;
+                        Debug.Log("asdasd");
+                    }
+
+                    stopJumping = false;
                 }
             }
             m_Anim.SetBool("Ground", m_Grounded);
@@ -112,14 +123,16 @@ namespace UnityStandardAssets._2D
             {
                 // Add a vertical force to the player.
                 jump_timer += Time.deltaTime;
-                if (jump_timer <= mJump_Max_timer) {
+                if (jump_timer <= mJump_Max_timer && !stopJumping)
+                {
                     m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x, m_JumpForce_min);
                 }
-               // m_Grounded = false;
+                // m_Grounded = false;
                 m_Anim.SetBool("Ground", false);
 
                 // m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
             }
+
             if (Input.GetButton("Fire1") && nextFire <= Time.time)
             {
                 nextFire = Time.time + fireRate;
