@@ -36,7 +36,8 @@ namespace UnityStandardAssets._2D
         //
         [HideInInspector]
         public bool stopJumping = false;
-   
+        [HideInInspector]
+        public bool crouchBlocked = false;
         private void Awake()
         {
             // Setting up references.
@@ -65,7 +66,6 @@ namespace UnityStandardAssets._2D
                     if (stopJumping)
                     {
                         jump_timer = 0.0f;
-                        Debug.Log("asdasd");
                     }
 
                     stopJumping = false;
@@ -81,7 +81,7 @@ namespace UnityStandardAssets._2D
         public void Move(float move, bool crouch, bool jump)
         {
             // If crouching, check to see if the character can stand up
-            if (!crouch && m_Anim.GetBool("Crouch"))
+            if (!crouch && m_Anim.GetBool("Crouch") && !crouchBlocked)
             {
                 // If the character has a ceiling preventing them from standing up, keep them crouching
                 if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
@@ -90,14 +90,16 @@ namespace UnityStandardAssets._2D
                 }
             }
 
-            // Set whether or not the character is crouching in the animator
-            m_Anim.SetBool("Crouch", crouch);
-
+            if (!crouchBlocked)
+            {
+                m_Anim.SetBool("Crouch", crouch);
+            }
+            Debug.Log("crouchbolcked:"+crouchBlocked);
             //only control the player if grounded or airControl is turned on
             if (m_Grounded || m_AirControl)
             {
                 // Reduce the speed if crouching by the crouchSpeed multiplier
-                move = (crouch ? move*m_CrouchSpeed : move);
+                move = (crouch&& !crouchBlocked ? move*m_CrouchSpeed : move);
 
                 // The Speed animator parameter is set to the absolute value of the horizontal input.
                 m_Anim.SetFloat("Speed", Mathf.Abs(move));
@@ -141,9 +143,28 @@ namespace UnityStandardAssets._2D
             }
             if (Input.GetButton("Fire2") && nextFire <= Time.time)
             {
-                nextFire = Time.time + fireRate;
-                // var angle = Mathf.Atan2(dir.y, tX * dir.x) * Mathf.Rad2Deg;
-                Punch(Quaternion.Euler(new Vector3(0, 0, 0)), move);
+                if (crouch)
+                {
+                    // If the character has a ceiling preventing them from standing up, keep them crouching
+                    if (!Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
+                    {
+                        nextFire = Time.time + fireRate;
+                        Punch(Quaternion.Euler(new Vector3(0, 0, 0)), move);
+                        crouchBlocked = true;
+                        crouch = false;
+                        m_Anim.SetBool("Crouch", false);
+                    }
+                    else
+                    {
+                       // m_Anim.SetBool("Crouch", false);
+                       // crouch = false;
+                    }
+                }
+                else
+                {
+                    nextFire = Time.time + fireRate;
+                    Punch(Quaternion.Euler(new Vector3(0, 0, 0)), move);
+                }
             }
             if (punching) {
                 punch_timer_curr += Time.deltaTime;

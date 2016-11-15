@@ -32,7 +32,13 @@ namespace UnityStandardAssets._2D
 
         private void FixedUpdate()
         {
-            bool crouch = Input.GetKey(KeyCode.LeftControl);
+            if (m_Character.crouchBlocked) {
+                if (!Input.GetKey(KeyCode.Z))
+                {
+                    m_Character.crouchBlocked = false;
+                }
+            }
+            bool crouch = Input.GetKey(KeyCode.Z);
             axis = CrossPlatformInputManager.GetAxis("Horizontal");
             m_Character.Move(axis, crouch, m_Jump);
         }
