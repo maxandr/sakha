@@ -128,7 +128,7 @@ namespace UnityStandardAssets._2D
                     m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x, m_JumpForce_min);
                 }
                 // m_Grounded = false;
-                m_Anim.SetBool("Ground", false);
+                m_Anim.SetBool("Ground", m_Grounded);
 
             }
 
@@ -138,6 +138,7 @@ namespace UnityStandardAssets._2D
                     punching = false;
                     punch_timer_curr = 0.0f;
                     PunchCollider.GetComponent<PolygonCollider2D>().enabled = false;
+                    PunchCollider.GetComponent<SpriteRenderer>().enabled = false;
                 }
             }
 
@@ -192,6 +193,7 @@ namespace UnityStandardAssets._2D
                             nextFire = Time.time + fireRate;
                             punch_timer_curr = 0.0f;
                             PunchCollider.GetComponent<PolygonCollider2D>().enabled = true;
+                            PunchCollider.GetComponent<SpriteRenderer>().enabled = true;
                             punching = true;
                             crouchBlocked = true;
                             crouch = false;
@@ -203,6 +205,7 @@ namespace UnityStandardAssets._2D
                         nextFire = Time.time + fireRate;
                         punch_timer_curr = 0.0f;
                         PunchCollider.GetComponent<PolygonCollider2D>().enabled = true;
+                        PunchCollider.GetComponent<SpriteRenderer>().enabled = true;
                         punching = true;
                     }
                 }
