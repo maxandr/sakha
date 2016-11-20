@@ -166,6 +166,11 @@ namespace UnityStandardAssets._2D
                 {
                     axisX = 1;
                 }
+                if (m_Anim.GetBool("Crouch"))
+                {
+                    axises = 0;
+                    axisX = 1.0f;
+                }
                 if (m_FacingRight)
                 {
                     GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, bullet_instantiate.transform.rotation) as GameObject;
