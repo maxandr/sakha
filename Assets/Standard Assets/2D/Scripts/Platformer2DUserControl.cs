@@ -16,6 +16,7 @@ namespace UnityStandardAssets._2D
         private void Awake()
         {
             m_Character = GetComponent<PlatformerCharacter2D>();
+            Physics2D.IgnoreLayerCollision(21, 22);
         }
 
 
