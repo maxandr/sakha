@@ -119,7 +119,6 @@ namespace UnityStandardAssets._2D
                     Flip();
                 }
             }
-            // If the player should jump...
             if (/*m_Grounded &&*/ jump/* && m_Anim.GetBool("Ground")*/)
             {
                 // Add a vertical force to the player.
@@ -131,40 +130,8 @@ namespace UnityStandardAssets._2D
                 // m_Grounded = false;
                 m_Anim.SetBool("Ground", false);
 
-                // m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
             }
 
-            if (Input.GetButton("Fire1") && nextFire <= Time.time)
-            {
-                nextFire = Time.time + fireRate;
-                // var angle = Mathf.Atan2(dir.y, tX * dir.x) * Mathf.Rad2Deg;
-                Fire(Quaternion.Euler(new Vector3(0, 0, 0)), move, axisY);
-            }
-            if (Input.GetButton("Fire2") && nextFire <= Time.time)
-            {
-                if (crouch)
-                {
-                    // If the character has a ceiling preventing them from standing up, keep them crouching
-                    if (!Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
-                    {
-                        nextFire = Time.time + fireRate;
-                        Punch(Quaternion.Euler(new Vector3(0, 0, 0)), move);
-                        crouchBlocked = true;
-                        crouch = false;
-                        m_Anim.SetBool("Crouch", false);
-                    }
-                    else
-                    {
-                       // m_Anim.SetBool("Crouch", false);
-                       // crouch = false;
-                    }
-                }
-                else
-                {
-                    nextFire = Time.time + fireRate;
-                    Punch(Quaternion.Euler(new Vector3(0, 0, 0)), move);
-                }
-            }
             if (punching) {
                 punch_timer_curr += Time.deltaTime;
                 if (punch_timer_curr >= punch_timer) {
@@ -179,32 +146,66 @@ namespace UnityStandardAssets._2D
         {
             return number < 0 ? -1 : (number > 0 ? 1 : 0);
         }
-        public void Fire(Quaternion pAngle, float move, float axisY)
+        public void Shoot(float axisX,float axisY)
         {
-            int axises = (axisY == 0.0f ? 0: Sign(axisY));
-            float speeddec = 1.0f;
-            if (axises != 0) {
-                speeddec = 1.0f / Mathf.Sqrt(2);
-            }
-            if (m_FacingRight)
+            if (nextFire <= Time.time)
             {
-                GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, pAngle/* bullet_instantiate.transform.rotation*/) as GameObject;
-                clone.transform.Rotate(new Vector3(0, 0, 45*axises));
-                clone.GetComponent<Rigidbody2D>().velocity = new Vector2(bulletSpeed * speeddec, bulletSpeed * axises * speeddec);
-            }
-            else {
-                GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, pAngle/* bullet_instantiate.transform.rotation*/) as GameObject;
-                clone.transform.Rotate(new Vector3(0, 180, 45*axises));
-                clone.GetComponent<Rigidbody2D>().velocity = new Vector2(-bulletSpeed * speeddec, bulletSpeed* axises* speeddec);
+                nextFire = Time.time + fireRate;
+                int axises = (axisY == 0.0f ? 0 : Sign(axisY));
+                if (axisX == 0.0f)
+                {
+                    axises *= 2;
+                }
+                float speeddec = 1.0f;
+                if (axises != 0)
+                {
+                    speeddec = 1.0f / Mathf.Sqrt(2);
+                }
+                if(axisY==0.0f)
+                {
+                    axisX = 1;
+                }
+                if (m_FacingRight)
+                {
+                    GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, bullet_instantiate.transform.rotation) as GameObject;
+                    clone.transform.Rotate(new Vector3(0, 0, 45 * axises));
+                    clone.GetComponent<Rigidbody2D>().velocity = new Vector2(bulletSpeed * speeddec * Mathf.Abs(axisX), bulletSpeed * axises * speeddec);
+                }
+                else
+                {
+                    GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, bullet_instantiate.transform.rotation) as GameObject;
+                    clone.transform.Rotate(new Vector3(0, 180, 45 * axises));
+                    clone.GetComponent<Rigidbody2D>().velocity = new Vector2(-bulletSpeed * speeddec * Mathf.Abs(axisX), bulletSpeed * axises * speeddec);
+                }
             }
         }
-        public void Punch(Quaternion pAngle, float move)
+        public void Punch(bool crouch)
         {
-            if (!punching)
+            if (nextFire <= Time.time && !punching)
             {
-                punch_timer_curr = 0.0f;
-                PunchCollider.GetComponent<PolygonCollider2D>().enabled = true;
-                punching = true;
+                if (!punching)
+                {
+                    if (crouch)
+                    {
+                        if (!Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
+                        {
+                            nextFire = Time.time + fireRate;
+                            punch_timer_curr = 0.0f;
+                            PunchCollider.GetComponent<PolygonCollider2D>().enabled = true;
+                            punching = true;
+                            crouchBlocked = true;
+                            crouch = false;
+                            m_Anim.SetBool("Crouch", false);
+                        }
+                    }
+                    else
+                    {
+                        nextFire = Time.time + fireRate;
+                        punch_timer_curr = 0.0f;
+                        PunchCollider.GetComponent<PolygonCollider2D>().enabled = true;
+                        punching = true;
+                    }
+                }
             }
         }
         private void Flip()

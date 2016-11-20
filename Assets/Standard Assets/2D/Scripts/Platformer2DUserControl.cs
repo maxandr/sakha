@@ -9,6 +9,8 @@ namespace UnityStandardAssets._2D
     {
         private PlatformerCharacter2D m_Character;
         private bool m_Jump;
+        private bool m_Shoot;
+        private bool m_Punch;
         [HideInInspector] public float axis;
         [HideInInspector] public float axisY;
         private void Awake()
@@ -27,7 +29,8 @@ namespace UnityStandardAssets._2D
                 m_Jump = false;
                 m_Character.stopJumping = true;
             }
-            Debug.Log(m_Jump);
+            m_Shoot = Input.GetButton("Fire1");
+            m_Punch = Input.GetButton("Fire2");
         }
 
 
@@ -43,6 +46,14 @@ namespace UnityStandardAssets._2D
             axis = CrossPlatformInputManager.GetAxis("Horizontal");
             axisY = CrossPlatformInputManager.GetAxisRaw("Vertical");
             m_Character.Move(axis, axisY, crouch, m_Jump);
+            if (m_Shoot)
+            {
+                m_Character.Shoot(CrossPlatformInputManager.GetAxisRaw("Horizontal"), axisY);
+            }
+            if (m_Punch)
+            {
+                m_Character.Punch(crouch);
+            }
         }
     }
 }
