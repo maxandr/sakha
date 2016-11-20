@@ -13,7 +13,8 @@ public class Heck : MonoBehaviour
     private Animator m_Anim;     
     public GameObject[] walls;
     public ArrayList created_walls;
-    public GameObject player;
+    [HideInInspector] public GameObject player;
+    public bool isPatroler;
     Vector2 toVector2(Vector3 vect)
     {
         Vector2 tRetVec = new Vector2(vect.x, vect.y);
@@ -23,29 +24,41 @@ public class Heck : MonoBehaviour
     {
         m_Anim = GetComponent<Animator>();
     }
+    public void ChaseEnemy(GameObject enemy) {
+        player = enemy;
+    }
+
     void Start()
     {
+        player = null;
         going_right = true;
         myTrans = this.transform;
         myBody = this.GetComponent<Rigidbody2D>();
-        SpriteRenderer mySprite = this.GetComponent<SpriteRenderer>();
         myWidth = GetComponent<BoxCollider2D>().size.x;
         myHeight = GetComponent<BoxCollider2D>().size.y;
         created_walls = new ArrayList();
-        foreach (GameObject wall in walls)
+        if (isPatroler)
         {
-            GameObject clone = Instantiate(wall) as GameObject;
-            clone.transform.position = wall.transform.position;
-            Vector2 tSize = wall.GetComponent<BoxCollider2D>().size;
-            tSize.x = tSize.x * gameObject.transform.localScale.x;
-            tSize.y = tSize.y * gameObject.transform.localScale.y;
-            clone.GetComponent<BoxCollider2D>().size = tSize;
-            clone.layer = 23;
-            clone.GetComponent<HeckWall>().myHeck = gameObject;
-            created_walls.Add(clone);
-            Destroy(wall);
+            foreach (GameObject wall in walls)
+            {
+                GameObject clone = Instantiate(wall) as GameObject;
+                clone.transform.position = wall.transform.position;
+                Vector2 tSize = wall.GetComponent<BoxCollider2D>().size;
+                tSize.x = tSize.x * gameObject.transform.localScale.x;
+                tSize.y = tSize.y * gameObject.transform.localScale.y;
+                clone.GetComponent<BoxCollider2D>().size = tSize;
+                clone.layer = 23;
+                clone.GetComponent<HeckWall>().myHeck = gameObject;
+                created_walls.Add(clone);
+                Destroy(wall);
+            }
         }
-
+        else
+        {
+            foreach (GameObject wall in walls) {
+                Destroy(wall);
+            }
+        }
     }
     void OnDestroy()
     {
@@ -86,23 +99,65 @@ public class Heck : MonoBehaviour
         m_Anim.SetBool("Ground", isGrounded);
         m_Anim.SetFloat("vSpeed", myBody.velocity.y);
         m_Anim.SetFloat("Speed", Mathf.Abs(myBody.velocity.x));
-        if (!isGrounded || isBlocked)
+        if (isPatroler && !player)
         {
-            Vector3 theScale = transform.localScale;
-            theScale.x *= -1;
-            transform.localScale = theScale;
-            going_right = !going_right;
+            if (!isGrounded || isBlocked)
+            {
+                Vector3 theScale = transform.localScale;
+                theScale.x *= -1;
+                transform.localScale = theScale;
+                going_right = !going_right;
+            }
+
+            Vector2 myVel = myBody.velocity;
+            if (going_right)
+            {
+                myVel.x = -myTrans.right.x * -speed;
+            }
+            else
+            {
+                myVel.x = -myTrans.right.x * speed;
+            }
+            myBody.velocity = myVel;
         }
 
-        Vector2 myVel = myBody.velocity;
-        if(going_right)
-        {
-            myVel.x = -myTrans.right.x * -speed;
+        if (player) {
+            if (transform.position.x < player.transform.position.x)
+            {
+                Vector2 myVel = myBody.velocity;
+                myVel.x = -myTrans.right.x * -speed;
+                myBody.velocity = myVel;
+
+                
+            }
+            else
+            {
+                Vector2 myVel = myBody.velocity;
+                myVel.x = -myTrans.right.x * speed;
+                myBody.velocity = myVel;
+            }
+            SetAutoFlip();
         }
-        else
-        {
-            myVel.x = -myTrans.right.x * speed;
-        }
-        myBody.velocity = myVel;
     }
+    private void SetAutoFlip() {
+        if (myBody.velocity.x > 0)
+        {
+            Vector3 theScale = transform.localScale;
+            if (theScale.x < 0)
+            {
+                theScale.x *= -1;
+                transform.localScale = theScale;
+            }
+        }
+        if (myBody.velocity.x < 0)
+        {
+            Vector3 theScale = transform.localScale;
+            if (theScale.x > 0)
+            {
+                theScale.x *= -1;
+                transform.localScale = theScale;
+            }
+        }
+    }
+
 }
