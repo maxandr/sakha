@@ -10,6 +10,7 @@ namespace UnityStandardAssets._2D
         private PlatformerCharacter2D m_Character;
         private bool m_Jump;
         [HideInInspector] public float axis;
+        [HideInInspector] public float axisY;
         private void Awake()
         {
             m_Character = GetComponent<PlatformerCharacter2D>();
@@ -40,7 +41,8 @@ namespace UnityStandardAssets._2D
             }
             bool crouch = Input.GetKey(KeyCode.Z);
             axis = CrossPlatformInputManager.GetAxis("Horizontal");
-            m_Character.Move(axis, crouch, m_Jump);
+            axisY = CrossPlatformInputManager.GetAxisRaw("Vertical");
+            m_Character.Move(axis, axisY, crouch, m_Jump);
         }
     }
 }

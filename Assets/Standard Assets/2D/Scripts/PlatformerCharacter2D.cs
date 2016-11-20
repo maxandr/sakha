@@ -78,7 +78,7 @@ namespace UnityStandardAssets._2D
         }
 
 
-        public void Move(float move, bool crouch, bool jump)
+        public void Move(float move, float axisY, bool crouch, bool jump)
         {
             // If crouching, check to see if the character can stand up
             if (!crouch && m_Anim.GetBool("Crouch") && !crouchBlocked)
@@ -94,7 +94,6 @@ namespace UnityStandardAssets._2D
             {
                 m_Anim.SetBool("Crouch", crouch);
             }
-            Debug.Log("crouchbolcked:"+crouchBlocked);
             //only control the player if grounded or airControl is turned on
             if (m_Grounded || m_AirControl)
             {
@@ -138,8 +137,8 @@ namespace UnityStandardAssets._2D
             if (Input.GetButton("Fire1") && nextFire <= Time.time)
             {
                 nextFire = Time.time + fireRate;
-               // var angle = Mathf.Atan2(dir.y, tX * dir.x) * Mathf.Rad2Deg;
-                Fire(Quaternion.Euler(new Vector3(0, 0, 0)), move);
+                // var angle = Mathf.Atan2(dir.y, tX * dir.x) * Mathf.Rad2Deg;
+                Fire(Quaternion.Euler(new Vector3(0, 0, 0)), move, axisY);
             }
             if (Input.GetButton("Fire2") && nextFire <= Time.time)
             {
@@ -176,17 +175,27 @@ namespace UnityStandardAssets._2D
             }
 
         }
-        public void Fire(Quaternion pAngle, float move)
+        static int Sign(float number)
         {
+            return number < 0 ? -1 : (number > 0 ? 1 : 0);
+        }
+        public void Fire(Quaternion pAngle, float move, float axisY)
+        {
+            int axises = (axisY == 0.0f ? 0: Sign(axisY));
+            float speeddec = 1.0f;
+            if (axises != 0) {
+                speeddec = 1.0f / Mathf.Sqrt(2);
+            }
             if (m_FacingRight)
             {
                 GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, pAngle/* bullet_instantiate.transform.rotation*/) as GameObject;
-                clone.GetComponent<Rigidbody2D>().velocity = new Vector2(bulletSpeed, 0);
+                clone.transform.Rotate(new Vector3(0, 0, 45*axises));
+                clone.GetComponent<Rigidbody2D>().velocity = new Vector2(bulletSpeed * speeddec, bulletSpeed * axises * speeddec);
             }
             else {
                 GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, pAngle/* bullet_instantiate.transform.rotation*/) as GameObject;
-                clone.transform.Rotate(new Vector3(0  , 180, 0));
-                clone.GetComponent<Rigidbody2D>().velocity = new Vector2(bulletSpeed*(-1), 0);
+                clone.transform.Rotate(new Vector3(0, 180, 45*axises));
+                clone.GetComponent<Rigidbody2D>().velocity = new Vector2(-bulletSpeed * speeddec, bulletSpeed* axises* speeddec);
             }
         }
         public void Punch(Quaternion pAngle, float move)
