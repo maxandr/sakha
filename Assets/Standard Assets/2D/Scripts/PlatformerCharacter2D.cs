@@ -45,7 +45,7 @@ namespace UnityStandardAssets._2D
         public bool teleporting;
         private float teleporting_timer;
         public float teleporting_cd;
-        public bool teleport_blocked;
+        private bool teleport_blocked;
         private BoxCollider2D hitcollider;
         private void Awake()
         {
