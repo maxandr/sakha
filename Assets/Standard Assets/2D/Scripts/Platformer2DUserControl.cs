@@ -33,14 +33,14 @@ namespace UnityStandardAssets._2D
             }
             m_Shoot =( CrossPlatformInputManager.GetButtonDown("Fire1") || CrossPlatformInputManager.GetAxisRaw("Fire1")!=0.0f);
             m_Punch = (CrossPlatformInputManager.GetButtonDown("Fire2") || CrossPlatformInputManager.GetAxisRaw("Fire2") != 0.0f);
-            m_Teleport = Input.GetKey(KeyCode.B);
+            m_Teleport = CrossPlatformInputManager.GetButtonDown("Teleport");
         }
 
 
         private void FixedUpdate()
         {
            
-            bool crouch = false; ;//= Input.GetKey(KeyCode.Z);
+            bool crouch = false;
             axis = CrossPlatformInputManager.GetAxis("Horizontal");
             axisY = CrossPlatformInputManager.GetAxisRaw("Vertical");
             if (m_Character.crouchBlocked)

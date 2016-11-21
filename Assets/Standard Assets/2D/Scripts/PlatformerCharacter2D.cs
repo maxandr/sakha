@@ -26,7 +26,6 @@ namespace UnityStandardAssets._2D
         private Rigidbody2D m_Rigidbody2D;
         private float jump_timer;
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
-        public LayerMask platformMask;
 
         //Punching
         public GameObject PunchCollider;
@@ -39,6 +38,15 @@ namespace UnityStandardAssets._2D
         public bool stopJumping = false;
         [HideInInspector]
         public bool crouchBlocked = false;
+        public float teleport_cd;
+        public float force;
+        private float teleport_timer;
+        [HideInInspector]
+        public bool teleporting;
+        private float teleporting_timer;
+        public float teleporting_cd;
+        public bool teleport_blocked;
+        private BoxCollider2D hitcollider;
         private void Awake()
         {
             // Setting up references.
@@ -46,14 +54,32 @@ namespace UnityStandardAssets._2D
             m_CeilingCheck = transform.Find("CeilingCheck");
             m_Anim = GetComponent<Animator>();
             m_Rigidbody2D = GetComponent<Rigidbody2D>();
+            hitcollider = transform.FindChild("EnemyHitCollider").GetComponent<BoxCollider2D>();
             jump_timer = 0.0f;
 			nextFire = Time.time;
             punch_timer_curr = 0.0f;
+            teleport_timer = teleport_cd;
+            teleporting = false;
         }
 
+        public void StopTeleport()
+        {
+            teleporting = false;
+            Vector2 tVec = new Vector2(0.0f, 0.0f);
+            m_Rigidbody2D.velocity = tVec;
+        }
 
         private void FixedUpdate()
         {
+
+            if (hitcollider.IsTouchingLayers(m_WhatIsGround))
+            {
+                teleport_blocked = true;
+            }
+            else
+            {
+                teleport_blocked = false;
+            }
             Vector2 lineCastPos = toVector2(transform.position) ;
             Debug.DrawLine(lineCastPos, lineCastPos + toVector2(transform.right) * 2);
 
@@ -77,6 +103,27 @@ namespace UnityStandardAssets._2D
 
             // Set the vertical animation
             m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
+
+
+            teleport_timer += Time.deltaTime;
+            if (teleport_timer >= teleport_cd)
+            {
+                teleport_timer = teleport_cd;
+            }
+            if (teleporting)
+            {
+                teleporting_timer += Time.deltaTime;
+                float tForce = force;
+                if (!m_FacingRight) {
+                    tForce *= -1;
+                }
+
+                m_Rigidbody2D.AddForce(transform.right * tForce);
+                if (teleporting_timer >= teleporting_cd)
+                {
+                    StopTeleport();
+                }
+            }
         }
 
 
@@ -140,7 +187,7 @@ namespace UnityStandardAssets._2D
         }
         public void Shoot(float axisX,float axisY)
         {
-            if (nextFire <= Time.time)
+            if (nextFire <= Time.time && !teleporting)
             {
                 nextFire = Time.time + fireRate;
                 int axises = (axisY == 0.0f ? 0 : Sign(axisY));
@@ -178,7 +225,7 @@ namespace UnityStandardAssets._2D
         }
         public void Punch(bool crouch)
         {
-            if (nextFire <= Time.time && !punching)
+            if (nextFire <= Time.time && !punching && !teleporting)
             {
                 if (!punching)
                 {
@@ -220,17 +267,13 @@ namespace UnityStandardAssets._2D
             return tRetVec;
         }
         public void Teleport() {
-           Vector2 lineCastPos = toVector2(transform.position);
-           RaycastHit2D tRay = Physics2D.Linecast(lineCastPos, lineCastPos + toVector2(transform.right) * 2, platformMask);
-            if (tRay)
+            if(teleport_blocked || teleport_timer < teleport_cd || m_Anim.GetBool("Crouch"))
             {
-                Debug.Log("ray");
+                return;
             }
-            else {
-                Vector2 tVec = transform.position;
-                tVec.x += 2;
-                transform.position = tVec; 
-            }
+            teleport_timer = 0.0f;
+            teleporting_timer = 0.0f;
+            teleporting = true;
         }
     }
 }

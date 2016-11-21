@@ -14,7 +14,8 @@ public class PlayerHp : MonoBehaviour {
         current_HP -= 1;
         if (current_HP == 0)
         {
-            Destroy(gameObject);
+            Application.LoadLevel(Application.loadedLevel);
+            //Destroy(gameObject);
         }
     }
 }
