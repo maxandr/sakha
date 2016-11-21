@@ -85,7 +85,7 @@ public class Heck : MonoBehaviour
             Debug.DrawLine(lineCastPos, lineCastPos + Vector2.down);
             Debug.DrawLine(lineCastPos, lineCastPos + toVector2(myTrans.right) * .05f);
         }
-        RaycastHit2D tRay = Physics2D.Linecast(lineCastPos, lineCastPos - toVector2(myTrans.right) * .05f, wallMask); ;
+        RaycastHit2D tRay = Physics2D.Linecast(lineCastPos, lineCastPos - toVector2(myTrans.right) * .05f, wallMask);
         isGrounded = Physics2D.Linecast(lineCastPos, lineCastPos + Vector2.down, enemyMask);
 
         if (tRay && tRay.collider.gameObject.GetComponent<HeckWall>().myHeck == gameObject)

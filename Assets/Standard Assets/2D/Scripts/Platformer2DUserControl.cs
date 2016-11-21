@@ -11,6 +11,7 @@ namespace UnityStandardAssets._2D
         private bool m_Jump;
         private bool m_Shoot;
         private bool m_Punch;
+        private bool m_Teleport;
         [HideInInspector] public float axis;
         [HideInInspector] public float axisY;
         private void Awake()
@@ -30,8 +31,9 @@ namespace UnityStandardAssets._2D
                 m_Jump = false;
                 m_Character.stopJumping = true;
             }
-            m_Shoot = Input.GetKey(KeyCode.D);
-            m_Punch = Input.GetKey(KeyCode.W);
+            m_Shoot =( CrossPlatformInputManager.GetButtonDown("Fire1") || CrossPlatformInputManager.GetAxisRaw("Fire1")!=0.0f);
+            m_Punch = (CrossPlatformInputManager.GetButtonDown("Fire2") || CrossPlatformInputManager.GetAxisRaw("Fire2") != 0.0f);
+            m_Teleport = Input.GetKey(KeyCode.B);
         }
 
 
@@ -60,6 +62,11 @@ namespace UnityStandardAssets._2D
             if (m_Punch)
             {
                 m_Character.Punch(crouch);
+            }
+            if (m_Teleport)
+            {
+                m_Character.Teleport();
+                m_Teleport = false;
             }
         }
     }

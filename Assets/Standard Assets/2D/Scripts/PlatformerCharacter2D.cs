@@ -26,6 +26,7 @@ namespace UnityStandardAssets._2D
         private Rigidbody2D m_Rigidbody2D;
         private float jump_timer;
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
+        public LayerMask platformMask;
 
         //Punching
         public GameObject PunchCollider;
@@ -53,10 +54,11 @@ namespace UnityStandardAssets._2D
 
         private void FixedUpdate()
         {
+            Vector2 lineCastPos = toVector2(transform.position) ;
+            Debug.DrawLine(lineCastPos, lineCastPos + toVector2(transform.right) * 2);
+
             m_Grounded = false;
 
-            // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
-            // This can be done using layers instead but Sample Assets will not overwrite your project settings.
             Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
             for (int i = 0; i < colliders.Length; i++)
             {
@@ -80,10 +82,8 @@ namespace UnityStandardAssets._2D
 
         public void Move(float move, float axisY, bool crouch, bool jump)
         {
-            // If crouching, check to see if the character can stand up
             if (!crouch && m_Anim.GetBool("Crouch") && !crouchBlocked)
             {
-                // If the character has a ceiling preventing them from standing up, keep them crouching
                 if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
                 {
                     crouch = true;
@@ -94,34 +94,25 @@ namespace UnityStandardAssets._2D
             {
                 m_Anim.SetBool("Crouch", crouch);
             }
-            //only control the player if grounded or airControl is turned on
             if (m_Grounded || m_AirControl)
             {
-                // Reduce the speed if crouching by the crouchSpeed multiplier
                 move = (crouch&& !crouchBlocked ? move*m_CrouchSpeed : move);
 
-                // The Speed animator parameter is set to the absolute value of the horizontal input.
                 m_Anim.SetFloat("Speed", Mathf.Abs(move));
 
-                // Move the character
                 m_Rigidbody2D.velocity = new Vector2(move*m_MaxSpeed, m_Rigidbody2D.velocity.y);
 
-                // If the input is moving the player right and the player is facing left...
                 if (move > 0 && !m_FacingRight)
                 {
-                    // ... flip the player.
                     Flip();
                 }
-                    // Otherwise if the input is moving the player left and the player is facing right...
                 else if (move < 0 && m_FacingRight)
                 {
-                    // ... flip the player.
                     Flip();
                 }
             }
             if (/*m_Grounded &&*/ jump/* && m_Anim.GetBool("Ground")*/)
             {
-                // Add a vertical force to the player.
                 jump_timer += Time.deltaTime;
                 if (jump_timer <= mJump_Max_timer && !stopJumping)
                 {
@@ -218,13 +209,28 @@ namespace UnityStandardAssets._2D
         }
         private void Flip()
         {
-            // Switch the way the player is labelled as facing.
             m_FacingRight = !m_FacingRight;
-
-            // Multiply the player's x local scale by -1.
             Vector3 theScale = transform.localScale;
             theScale.x *= -1;
             transform.localScale = theScale;
+        }
+        Vector2 toVector2(Vector3 vect)
+        {
+            Vector2 tRetVec = new Vector2(vect.x, vect.y);
+            return tRetVec;
+        }
+        public void Teleport() {
+           Vector2 lineCastPos = toVector2(transform.position);
+           RaycastHit2D tRay = Physics2D.Linecast(lineCastPos, lineCastPos + toVector2(transform.right) * 2, platformMask);
+            if (tRay)
+            {
+                Debug.Log("ray");
+            }
+            else {
+                Vector2 tVec = transform.position;
+                tVec.x += 2;
+                transform.position = tVec; 
+            }
         }
     }
 }
