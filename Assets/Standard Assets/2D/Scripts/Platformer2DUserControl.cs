@@ -14,9 +14,11 @@ namespace UnityStandardAssets._2D
         private bool m_Teleport;
         [HideInInspector] public float axis;
         [HideInInspector] public float axisY;
+        private bool crouch;
         private void Awake()
         {
             m_Character = GetComponent<PlatformerCharacter2D>();
+            crouch = false;
             //Physics2D.IgnoreLayerCollision(21, 22);
         }
 
@@ -39,8 +41,7 @@ namespace UnityStandardAssets._2D
 
         private void FixedUpdate()
         {
-           
-            bool crouch = false;
+            bool tOldCrouch = crouch;
             axis = CrossPlatformInputManager.GetAxis("Horizontal");
             axisY = CrossPlatformInputManager.GetAxisRaw("Vertical");
             if (m_Character.crouchBlocked)
@@ -50,10 +51,24 @@ namespace UnityStandardAssets._2D
                     m_Character.crouchBlocked = false;
                 }
             }
+           
+          
             if (axisY < 0.0f)
             {
                 crouch = true;
             }
+            else
+            {
+                crouch = false;
+            }
+            if (m_Shoot || m_Punch)
+            {
+                if (!tOldCrouch)
+                {
+                    crouch = false;
+                }
+            }
+
             m_Character.Move(axis, axisY, crouch, m_Jump);
             if (m_Shoot)
             {

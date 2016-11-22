@@ -140,6 +140,10 @@ namespace UnityStandardAssets._2D
             if (!crouchBlocked)
             {
                 m_Anim.SetBool("Crouch", crouch);
+                if (!m_Grounded) {
+                    m_Anim.SetBool("Crouch", false);
+                }
+
             }
             if (m_Grounded || m_AirControl)
             {
@@ -189,9 +193,10 @@ namespace UnityStandardAssets._2D
         {
             if (nextFire <= Time.time && !teleporting)
             {
+                Debug.Log(axisY);
                 nextFire = Time.time + fireRate;
                 int axises = (axisY == 0.0f ? 0 : Sign(axisY));
-                if (axisX == 0.0f)
+                if (axisX <=0.2f && axisX >= -0.2f)
                 {
                     axises *= 2;
                 }
