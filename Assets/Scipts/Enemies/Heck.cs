@@ -127,8 +127,6 @@ public class Heck : MonoBehaviour
                 Vector2 myVel = myBody.velocity;
                 myVel.x = -myTrans.right.x * -speed;
                 myBody.velocity = myVel;
-
-                
             }
             else
             {
