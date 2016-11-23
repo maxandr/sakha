@@ -14,6 +14,9 @@ public class ChaseEnemyScript : MonoBehaviour
     public GameObject player;
 
     private LayerMask platformMask;
+
+    private float hitCollider_w;
+    private float enemy_hitCollider_w;
     static Vector2 toVector2(Vector3 vect)
     {
         Vector2 tRetVec = new Vector2(vect.x, vect.y);
@@ -27,6 +30,8 @@ public class ChaseEnemyScript : MonoBehaviour
     public void ChaseEnemy(GameObject enemy)
     {
         player = enemy;
+        GameObject tEnemyHitCollider = player.transform.FindChild("EnemyHitCollider").gameObject;
+        enemy_hitCollider_w = tEnemyHitCollider.GetComponent<BoxCollider2D>().size.x * tEnemyHitCollider.transform.localScale.x * player.transform.localScale.x;
     }
 
     void Start()
@@ -39,6 +44,8 @@ public class ChaseEnemyScript : MonoBehaviour
         myWidth = GetComponent<BoxCollider2D>().size.x * gameObject.transform.localScale.x;
         myHeight = GetComponent<BoxCollider2D>().size.y * gameObject.transform.localScale.y;
 
+        GameObject tHitCollider = transform.FindChild("EnemyHitCollider").gameObject;
+        hitCollider_w = tHitCollider.GetComponent<BoxCollider2D>().size.x * tHitCollider.transform.localScale.x * gameObject.transform.localScale.x;
     }
     void FixedUpdate()
     {
@@ -66,17 +73,21 @@ public class ChaseEnemyScript : MonoBehaviour
 
             if (player)
             {
-                if (transform.position.x < player.transform.position.x)
+                if ((transform.position.x + hitCollider_w / 2) < (player.transform.position.x - enemy_hitCollider_w / 2))
                 {
                     Vector2 myVel = myBody.velocity;
                     myVel.x = -myTrans.right.x * -speed;
                     myBody.velocity = myVel;
                 }
-                else
+                else if((player.transform.position.x + enemy_hitCollider_w / 2) < (transform.position.x - hitCollider_w / 2))
                 {
                     Vector2 myVel = myBody.velocity;
                     myVel.x = -myTrans.right.x * speed;
                     myBody.velocity = myVel;
+                }
+                else
+                {
+                    int a = 0;
                 }
                 SetAutoFlip();
             }
@@ -84,7 +95,7 @@ public class ChaseEnemyScript : MonoBehaviour
     }
     private void SetAutoFlip()
     {
-        if (myBody.velocity.x > 0)
+        if (transform.position.x < player.transform.position.x)
         {
             Vector3 theScale = transform.localScale;
             if (theScale.x < 0)
@@ -93,7 +104,7 @@ public class ChaseEnemyScript : MonoBehaviour
                 transform.localScale = theScale;
             }
         }
-        if (myBody.velocity.x < 0)
+        else 
         {
             Vector3 theScale = transform.localScale;
             if (theScale.x > 0)
