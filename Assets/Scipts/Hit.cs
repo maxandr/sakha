@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class Hit : MonoBehaviour {
-    public void Hitted() {
-        gameObject.GetComponent<UnityStandardAssets._2D.UnitParams>().Hitted();
+    public void Hitted(int dmg) {
+        gameObject.GetComponent<UnityStandardAssets._2D.UnitParams>().Hitted(dmg);
     }
 }

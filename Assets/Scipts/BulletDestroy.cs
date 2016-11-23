@@ -17,7 +17,7 @@ public class BulletDestroy : MonoBehaviour
     {
         if (other.gameObject.tag == "Enemy")
         {
-            other.gameObject.GetComponent<Hit>().Hitted();
+            other.gameObject.GetComponent<Hit>().Hitted(1);
             Destroy(gameObject);
         }
         if (other.gameObject.layer == 20) { 

@@ -78,16 +78,26 @@ public class ChaseEnemyScript : MonoBehaviour
                     Vector2 myVel = myBody.velocity;
                     myVel.x = -myTrans.right.x * -speed;
                     myBody.velocity = myVel;
+                    if (GetComponent<UnitActions>().enabled)
+                    {
+                        GetComponent<UnitActions>().SetNULL();
+                        GetComponent<UnitActions>().enabled = false;
+                    }
                 }
                 else if((player.transform.position.x + enemy_hitCollider_w / 2) < (transform.position.x - hitCollider_w / 2))
                 {
                     Vector2 myVel = myBody.velocity;
                     myVel.x = -myTrans.right.x * speed;
                     myBody.velocity = myVel;
+                    if (GetComponent<UnitActions>().enabled)
+                    {
+                        GetComponent<UnitActions>().SetNULL();
+                        GetComponent<UnitActions>().enabled = false;
+                    }
                 }
                 else
                 {
-                    int a = 0;
+                    GetComponent<UnitActions>().enabled = true;
                 }
                 SetAutoFlip();
             }

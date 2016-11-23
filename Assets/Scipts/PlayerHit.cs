@@ -11,7 +11,7 @@ public class PlayerHit : MonoBehaviour {
     {
         if (other.gameObject.name == "EnemyHitCollider" && !player.teleporting)
         {
-            gameObject.transform.parent.GetComponent<Hit>().Hitted();
+           // gameObject.transform.parent.GetComponent<Hit>().Hitted();
         }
         if (other.gameObject.layer == 20 && player.teleporting)
         {
