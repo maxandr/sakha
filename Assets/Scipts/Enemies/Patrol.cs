@@ -1,21 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Heck : MonoBehaviour
+public class Patrol : MonoBehaviour
 {
-    public LayerMask enemyMask;
-    public LayerMask wallMask;
-    public float speed = 1;
+   
+    private float speed = 1;
     Rigidbody2D myBody;
     Transform myTrans;
     float myWidth, myHeight;
     private bool going_right;
-    private Animator m_Anim;     
-    public GameObject[] walls;
+    private Animator m_Anim;
+    private GameObject patrolWalls;
     public ArrayList created_walls;
-    [HideInInspector] public GameObject player;
-    public bool isPatroler;
-    Vector2 toVector2(Vector3 vect)
+    [HideInInspector]
+    public GameObject player;
+
+    private LayerMask platformMask;
+    private LayerMask wallMask;
+    static Vector2 toVector2(Vector3 vect)
     {
         Vector2 tRetVec = new Vector2(vect.x, vect.y);
         return tRetVec;
@@ -23,9 +25,13 @@ public class Heck : MonoBehaviour
     private void Awake()
     {
         m_Anim = GetComponent<Animator>();
-        enemyMask = 1<<20;
+        platformMask = 1 << 20;
+        wallMask = 1 << 23;
+        patrolWalls = transform.FindChild("PatrolWalls").gameObject;
+        speed = gameObject.GetComponent<UnityStandardAssets._2D.UnitParams>().speed;
     }
-    public void ChaseEnemy(GameObject enemy) {
+    public void ChaseEnemy(GameObject enemy)
+    {
         player = enemy;
     }
 
@@ -35,31 +41,24 @@ public class Heck : MonoBehaviour
         going_right = true;
         myTrans = this.transform;
         myBody = this.GetComponent<Rigidbody2D>();
-        myWidth = GetComponent<BoxCollider2D>().size.x;
-        myHeight = GetComponent<BoxCollider2D>().size.y;
+        myWidth = GetComponent<BoxCollider2D>().size.x * gameObject.transform.localScale.x;
+        myHeight = GetComponent<BoxCollider2D>().size.y * gameObject.transform.localScale.y;
         created_walls = new ArrayList();
-        if (isPatroler)
+
+        foreach (Transform wall in patrolWalls.transform)
         {
-            foreach (GameObject wall in walls)
-            {
-                GameObject clone = Instantiate(wall) as GameObject;
-                clone.transform.position = wall.transform.position;
-                Vector2 tSize = wall.GetComponent<BoxCollider2D>().size;
-                tSize.x = tSize.x * gameObject.transform.localScale.x;
-                tSize.y = tSize.y * gameObject.transform.localScale.y;
-                clone.GetComponent<BoxCollider2D>().size = tSize;
-                clone.layer = 23;
-                clone.GetComponent<HeckWall>().myUnit = gameObject;
-                created_walls.Add(clone);
-                Destroy(wall);
-            }
+            GameObject clone = Instantiate(wall.gameObject) as GameObject;
+            clone.transform.position = wall.transform.position;
+            Vector2 tSize;
+            tSize.x = /*wall.transform.localScale.x */ gameObject.transform.localScale.x * patrolWalls.transform.localScale.x;
+            tSize.y = /*wall.transform.localScale.x */ gameObject.transform.localScale.y * patrolWalls.transform.localScale.y;
+            clone.transform.localScale = tSize;
+            clone.layer = 23;
+            clone.GetComponent<HeckWall>().myUnit = gameObject;
+            created_walls.Add(clone);
+            Destroy(wall.gameObject);
         }
-        else
-        {
-            foreach (GameObject wall in walls) {
-                Destroy(wall);
-            }
-        }
+        Destroy(patrolWalls);
     }
     void OnDestroy()
     {
@@ -87,7 +86,7 @@ public class Heck : MonoBehaviour
             Debug.DrawLine(lineCastPos, lineCastPos + toVector2(myTrans.right) * .05f);
         }
         RaycastHit2D tRay = Physics2D.Linecast(lineCastPos, lineCastPos - toVector2(myTrans.right) * .05f, wallMask);
-        isGrounded = Physics2D.Linecast(lineCastPos, lineCastPos + Vector2.down, enemyMask);
+        isGrounded = Physics2D.Linecast(lineCastPos, lineCastPos + Vector2.down* myHeight, platformMask);
 
         if (tRay && tRay.collider.gameObject.GetComponent<HeckWall>().myUnit == gameObject)
         {
@@ -100,7 +99,7 @@ public class Heck : MonoBehaviour
         m_Anim.SetBool("Ground", isGrounded);
         m_Anim.SetFloat("vSpeed", myBody.velocity.y);
         m_Anim.SetFloat("Speed", Mathf.Abs(myBody.velocity.x));
-        if (isPatroler && !player)
+        if (!player)
         {
             if (!isGrounded || isBlocked)
             {
@@ -121,24 +120,9 @@ public class Heck : MonoBehaviour
             }
             myBody.velocity = myVel;
         }
-
-        if (player) {
-            if (transform.position.x < player.transform.position.x)
-            {
-                Vector2 myVel = myBody.velocity;
-                myVel.x = -myTrans.right.x * -speed;
-                myBody.velocity = myVel;
-            }
-            else
-            {
-                Vector2 myVel = myBody.velocity;
-                myVel.x = -myTrans.right.x * speed;
-                myBody.velocity = myVel;
-            }
-            SetAutoFlip();
-        }
     }
-    private void SetAutoFlip() {
+    private void SetAutoFlip()
+    {
         if (myBody.velocity.x > 0)
         {
             Vector3 theScale = transform.localScale;

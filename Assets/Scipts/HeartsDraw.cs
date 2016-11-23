@@ -17,7 +17,7 @@ public class HeartsDraw : MonoBehaviour {
             }
         }
 
-        for (int i = 0; i < player.GetComponent<PlayerHp>().current_HP; ++i)
+        for (int i = 0; i < player.GetComponent<UnityStandardAssets._2D.UnitParams>().current_health; ++i)
         {
             foreach (Transform child in hearts[i].transform)
             {

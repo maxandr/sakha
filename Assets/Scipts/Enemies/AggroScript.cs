@@ -6,7 +6,15 @@ public class AggroScript : MonoBehaviour {
     {
         if (other.gameObject.tag == "Player")
         {
-            transform.parent.gameObject.GetComponent<Heck>().player = other.gameObject;
+            if(transform.parent.gameObject.GetComponent<Patrol>())
+            {
+                transform.parent.gameObject.GetComponent<Patrol>().enabled = false;
+            }
+            if (transform.parent.gameObject.GetComponent<ChaseEnemyScript>())
+            {
+                transform.parent.gameObject.GetComponent<ChaseEnemyScript>().ChaseEnemy(other.gameObject);
+            }
+
             //Destroy(transform.parent.gameObject);
         }
     }

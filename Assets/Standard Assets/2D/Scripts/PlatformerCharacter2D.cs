@@ -1,11 +1,12 @@
 using System;
 using UnityEngine;
-
+using System.Collections.Generic;
+using System.Reflection;
 namespace UnityStandardAssets._2D
 {
     public class PlatformerCharacter2D : MonoBehaviour
     {
-        [SerializeField] private float m_MaxSpeed = 10f;                    // The fastest the player can travel in the x axis.
+        private float m_MaxSpeed = 10f;                    // The fastest the player can travel in the x axis.
         [SerializeField] private float m_JumpForce_min = 10f;                  // Amount of force added when the player jumps.
         [SerializeField] private float mJump_Max_timer = 0.5f;                  // Amount of force added when the player jumps.
         [Range(0, 1)] [SerializeField] private float m_CrouchSpeed = .36f;  // Amount of maxSpeed applied to crouching movement. 1 = 100%
@@ -60,6 +61,7 @@ namespace UnityStandardAssets._2D
             punch_timer_curr = 0.0f;
             teleport_timer = teleport_cd;
             teleporting = false;
+            m_MaxSpeed = gameObject.GetComponent<UnitParams>().speed;
         }
 
         public void StopTeleport()
