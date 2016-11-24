@@ -18,7 +18,7 @@ namespace UnityStandardAssets._2D
         public void Hitted(int dmg)
         {
             current_health -= dmg;
-            if (current_health == 0)
+            if (current_health <= 0)
             {
                 if (gameObject.tag == "Player")
                 {
