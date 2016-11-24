@@ -219,12 +219,14 @@ namespace UnityStandardAssets._2D
                 if (m_FacingRight)
                 {
                     GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, bullet_instantiate.transform.rotation) as GameObject;
+                    clone.GetComponent<BulletDestroy>().myCreatorTag = tag;
                     clone.transform.Rotate(new Vector3(0, 0, 45 * axises));
                     clone.GetComponent<Rigidbody2D>().velocity = new Vector2(bulletSpeed * speeddec * Mathf.Abs(axisX), bulletSpeed * axises * speeddec);
                 }
                 else
                 {
                     GameObject clone = Instantiate(bullet, bullet_instantiate.transform.position, bullet_instantiate.transform.rotation) as GameObject;
+                    clone.GetComponent<BulletDestroy>().myCreatorTag = tag;
                     clone.transform.Rotate(new Vector3(0, 180, 45 * axises));
                     clone.GetComponent<Rigidbody2D>().velocity = new Vector2(-bulletSpeed * speeddec * Mathf.Abs(axisX), bulletSpeed * axises * speeddec);
                 }

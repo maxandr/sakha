@@ -32,6 +32,8 @@ public class ChaseEnemyScript : MonoBehaviour
         player = enemy;
         GameObject tEnemyHitCollider = player.transform.FindChild("EnemyHitCollider").gameObject;
         enemy_hitCollider_w = tEnemyHitCollider.GetComponent<BoxCollider2D>().size.x * tEnemyHitCollider.transform.localScale.x * player.transform.localScale.x;
+        GetComponent<UnitActions>().canShoot = true;
+        GetComponent<UnitActions>().enemy = enemy;
     }
 
     void Start()
@@ -78,10 +80,10 @@ public class ChaseEnemyScript : MonoBehaviour
                     Vector2 myVel = myBody.velocity;
                     myVel.x = -myTrans.right.x * -speed;
                     myBody.velocity = myVel;
-                    if (GetComponent<UnitActions>().enabled)
+                    if (GetComponent<UnitActions>().canPunch)
                     {
                         GetComponent<UnitActions>().SetNULL();
-                        GetComponent<UnitActions>().enabled = false;
+                        GetComponent<UnitActions>().canPunch = false;
                     }
                 }
                 else if((player.transform.position.x + enemy_hitCollider_w / 2) < (transform.position.x - hitCollider_w / 2))
@@ -89,15 +91,15 @@ public class ChaseEnemyScript : MonoBehaviour
                     Vector2 myVel = myBody.velocity;
                     myVel.x = -myTrans.right.x * speed;
                     myBody.velocity = myVel;
-                    if (GetComponent<UnitActions>().enabled)
+                    if (GetComponent<UnitActions>().canPunch)
                     {
                         GetComponent<UnitActions>().SetNULL();
-                        GetComponent<UnitActions>().enabled = false;
+                        GetComponent<UnitActions>().canPunch = false;
                     }
                 }
                 else
                 {
-                    GetComponent<UnitActions>().enabled = true;
+                    GetComponent<UnitActions>().canPunch = true;
                 }
                 SetAutoFlip();
             }

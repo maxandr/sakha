@@ -7,8 +7,11 @@ namespace UnityStandardAssets._2D
         public float speed;
         public float max_health;
         public float punch_cd;
+        public float shoot_cd;
+        public float shoot_dmg;
         public float punch_duration;
         public int punch_dmg;
+        public bool croucher;//temp
         [HideInInspector]
         public float current_health;
         void Awake()

@@ -17,6 +17,7 @@ public class Patrol : MonoBehaviour
 
     private LayerMask platformMask;
     private LayerMask wallMask;
+    private UnityStandardAssets._2D.UnitParams unitparams;
     static Vector2 toVector2(Vector3 vect)
     {
         Vector2 tRetVec = new Vector2(vect.x, vect.y);
@@ -28,7 +29,8 @@ public class Patrol : MonoBehaviour
         platformMask = 1 << 20;
         wallMask = 1 << 23;
         patrolWalls = transform.FindChild("PatrolWalls").gameObject;
-        speed = gameObject.GetComponent<UnityStandardAssets._2D.UnitParams>().speed;
+        unitparams = gameObject.GetComponent<UnityStandardAssets._2D.UnitParams>();
+        speed = unitparams.speed;
     }
     public void ChaseEnemy(GameObject enemy)
     {
@@ -96,6 +98,8 @@ public class Patrol : MonoBehaviour
         {
             isBlocked = false;
         }
+        m_Anim.SetBool("Crouch", unitparams.croucher);
+        m_Anim.SetBool("Ground", isGrounded);
         m_Anim.SetBool("Ground", isGrounded);
         m_Anim.SetFloat("vSpeed", myBody.velocity.y);
         m_Anim.SetFloat("Speed", Mathf.Abs(myBody.velocity.x));
