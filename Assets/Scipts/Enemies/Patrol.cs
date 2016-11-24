@@ -70,6 +70,7 @@ public class Patrol : MonoBehaviour
         }
         created_walls.Clear();
     }
+  
     void FixedUpdate()
     {
         bool isGrounded = false;
