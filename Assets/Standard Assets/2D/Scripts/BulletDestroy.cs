@@ -23,8 +23,11 @@ namespace UnityStandardAssets._2D
             {
                 if (other.gameObject.tag != myCreatorTag)
                 {
-                    other.gameObject.GetComponent<Hit>().Hitted(1);
-                    Destroy(gameObject);
+                    //if(other.gameObject.tag == "Player" && other.gameObject.GetComponent<>
+                    if (other.gameObject.GetComponent<Hit>().Hitted(1))
+                    {
+                        Destroy(gameObject);
+                    }
                 }
                 if (other.gameObject.layer == 20)
                 {

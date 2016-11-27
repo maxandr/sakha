@@ -2,10 +2,12 @@
 using System.Collections;
 
 public class AggroScript : MonoBehaviour {
-    void OnTriggerEnter2D(Collider2D other)
+    private bool isChased = false;
+    void OnTriggerStay2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.gameObject.tag == "Player" && transform.parent.GetComponent<isPlayerVisible>().IsPlayerVisible(other.gameObject) && !isChased)
         {
+            isChased = true;
             if(transform.parent.gameObject.GetComponent<Patrol>())
             {
                 transform.parent.gameObject.GetComponent<Patrol>().enabled = false;

@@ -14,12 +14,17 @@ namespace UnityStandardAssets._2D
         public bool croucher;//temp
         [HideInInspector]
         public float current_health;
+        public bool immortal;
         void Awake()
         {
             current_health = max_health;
         }
         public void Hitted(int dmg)
         {
+            if (immortal) {
+                return;
+            }
+
             current_health -= dmg;
             if (current_health <= 0)
             {

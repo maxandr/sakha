@@ -17,6 +17,7 @@ public class ChaseEnemyScript : MonoBehaviour
 
     private float hitCollider_w;
     private float enemy_hitCollider_w;
+    private GameObject aggro_circle;
     static Vector2 toVector2(Vector3 vect)
     {
         Vector2 tRetVec = new Vector2(vect.x, vect.y);
@@ -26,6 +27,7 @@ public class ChaseEnemyScript : MonoBehaviour
     {
         m_Anim = GetComponent<Animator>();
         platformMask = 1 << 20;
+        aggro_circle= transform.FindChild("AggroCircle").gameObject;
     }
     public void ChaseEnemy(GameObject enemy)
     {
@@ -99,12 +101,16 @@ public class ChaseEnemyScript : MonoBehaviour
                 }
                 else
                 {
-                    GetComponent<UnitActions>().canPunch = true;
+                    if (GetComponent<isPlayerVisible>().IsPlayerVisible(player))
+                    {
+                        GetComponent<UnitActions>().canPunch = true;
+                    }
                 }
                 SetAutoFlip();
             }
         }
     }
+  
     private void SetAutoFlip()
     {
         if (transform.position.x < player.transform.position.x)
